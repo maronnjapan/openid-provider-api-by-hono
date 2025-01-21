@@ -1,0 +1,36 @@
+{
+  "name": "openid-provider-api-by-hono",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "prisma:migrate": "prisma migrate dev && tsx scripts/sync-migration-file.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "prisma db seed --preview-feature",
+    "prisma:reset": "prisma migrate reset --force && prisma migrate dev && tsx scripts/sync-migration-file.ts",
+    "wrangler:migrate:apply": "wrangler d1 migrations apply DATABASE_NAME --local",
+    "vitest": "vitest",
+    "vitest:run": "vitest run"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^0.18.3",
+    "@prisma/adapter-d1": "^6.1.0",
+    "@prisma/client": "^6.1.0",
+    "hono": "^4.6.15",
+    "inversify": "^6.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.1.0",
+    "reflect-metadata": "^0.2.2",
+    "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@cloudflare/workers-types": "^4.20241218.0",
+    "@types/node": "^22.10.5",
+    "miniflare": "^3.20241230.1",
+    "prisma": "^6.1.0",
+    "tsx": "^4.19.2",
+    "vitest": "^2.1.8",
+    "wrangler": "^3.96.0"
+  }
+}
