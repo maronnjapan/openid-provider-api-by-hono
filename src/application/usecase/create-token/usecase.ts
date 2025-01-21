@@ -1,14 +1,13 @@
 import { inject, injectable } from "inversify";
-import { KeyRepositoryType } from "../../infrastructure/types.provider";
-import type { IKeyRepositoryInterface } from "../../domain/key.repository.interface";
 import type { CreateTokenInput } from "./types";
-import { KeyValueStoreRepositoryType } from "../../../infrastructure/types.provider";
+import { KeyRepositoryType, KeyValueStoreRepositoryType } from "../../../infrastructure/types.provider";
 import type { IKeyJsonValueStoreRepositoryInterface } from "../../../domain/key-value-store.repository.interface";
 import { AuthorizationCode } from "../../../domain/authrization-code";
 import { HTTPException } from "hono/http-exception";
 import { CodeVerifier } from "../../../domain/value-objects/code-verifier";
-import { AuthorizationInfo } from "../store-authorizatoin-info/types";
+import type { AuthorizationInfo } from "../store-authorizatoin-info/types";
 import { CodeChallenge } from "../../../domain/value-objects/code-challenge";
+import type { IKeyRepositoryInterface } from "../../../domain/key.repository.interface";
 
 @injectable()
 export class CreateTokenUseCase {

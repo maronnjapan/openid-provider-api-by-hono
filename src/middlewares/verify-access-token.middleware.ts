@@ -3,10 +3,12 @@ import { env } from "hono/adapter";
 import { HTTPException } from "hono/http-exception";
 import jwksRsa from "jwks-rsa";
 import * as jsonwebtoken from 'jsonwebtoken'
+import { getCookie } from "hono/cookie";
 
 
 export const verifyAccessTokenMiddleware = async (context: Context, next: () => Promise<void>) => {
 
+    const cookies = getCookie(context)
     const authorizationHeader = context.req.header('Authorization')
     if (!authorizationHeader?.startsWith('Bearer ')) {
         throw new HTTPException(401, { message: 'Not Exist Access Token' })

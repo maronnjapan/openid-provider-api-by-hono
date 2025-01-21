@@ -5,6 +5,7 @@ import { logger } from 'hono/logger'
 import { requestId } from 'hono/request-id'
 import { loggerMiddleware } from './middlewares/logger.middleware'
 import { bindContainerMiddleware } from './middlewares/bind-container.middleware'
+import { setCookiesMiddleware } from './middlewares/set-cookies.middleware'
 
 type Bindings = {
   DB: D1Database
@@ -17,6 +18,7 @@ app.use('*', requestId())
 app.use('*', loggerMiddleware)
 app.use('*', prismaMiddleware)
 app.use('*', bindContainerMiddleware)
+app.use('*', setCookiesMiddleware)
 registerTokenRoutes(app)
 
 app.doc('/doc', {
