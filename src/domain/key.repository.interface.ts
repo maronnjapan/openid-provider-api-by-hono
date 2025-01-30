@@ -1,6 +1,6 @@
 export interface IKeyRepositoryInterface {
     readonly _kid: string
-    generateSignKeys(): { kid: string, privateKey: string, publicKey: string } | Promise<{ kid: string, privateKey: string, publicKey: string }>
+    generateSignKeys(): { kid: string, privateKey: CryptoKey, publicKey: CryptoKey } | Promise<{ kid: string, privateKey: CryptoKey, publicKey: CryptoKey }>
 }
 
 export const IKeyRepositoryInterfaceType = {

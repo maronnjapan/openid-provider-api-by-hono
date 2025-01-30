@@ -1,6 +1,10 @@
 export interface CreateTokenInput {
-    code_verifier: string;
+    codeVerifier: string;
     code: string;
-    client_id?: string;
-    redirect_uri?: string;
+    clientId?: string;
+    redirectUri?: string;
+}
+
+export const CreateTokenType = {
+    CreateTokenUseCase: Symbol.for('CreateTokenUseCase')
 }

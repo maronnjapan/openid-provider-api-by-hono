@@ -5,7 +5,7 @@ export type TokenHeader = {
 }
 
 export interface ISignRepositoryInterface {
-    sign(payload: Record<string, unknown>, header: TokenHeader, secret_key: string): string
+    sign(payload: Record<string, unknown>, header: TokenHeader, secretKey: CryptoKey): string | Promise<string>
 }
 
 export const ISignRepositoryInterfaceType = {

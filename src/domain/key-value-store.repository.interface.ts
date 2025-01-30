@@ -10,7 +10,7 @@ export const IKeyTextValueStoreRepositoryInterfaceType = {
 
 export interface IKeyJsonValueStoreRepositoryInterface {
     get<T extends Record<string, unknown>>(key: string): Promise<T | null>
-    set(key: string, value: Record<string, unknown>): Promise<void>
+    set(key: string, value: Record<string, unknown>, expirationTtl?: number): Promise<void>
     delete(key: string): Promise<void>
 }
 

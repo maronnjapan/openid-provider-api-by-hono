@@ -9,8 +9,8 @@ export class KeyTextValueStoreRepository implements IKeyTextValueStoreRepository
         return await this.store.get(key, 'text')
     }
 
-    async set(key: string, value: string) {
-        return this.store.put(key, value)
+    async set(key: string, value: string, expirationTtl?: number) {
+        return this.store.put(key, value, { expirationTtl })
     }
 
     async delete(key: string) {

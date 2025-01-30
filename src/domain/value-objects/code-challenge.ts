@@ -6,7 +6,7 @@ export class CodeChallenge {
     private readonly method: "S256" | "plain";
 
     constructor(value: string, method: "S256" | "plain") {
-        this.value = value;
+        this.value = decodeURIComponent(value);
         this.method = method;
     }
 

@@ -14,9 +14,20 @@ export class AuthorizationCode {
         return z.string().uuid().safeParse(value).success
     }
 
+    equals(other: AuthorizationCode) {
+        if (other === this) {
+            return true;
+        }
+        if (!(other instanceof AuthorizationCode)) {
+            return false;
+        }
+        return this.value === other.value;
+    }
+
     static from(value: string) {
         return new AuthorizationCode(value);
     }
+
 
     static generate() {
         return new AuthorizationCode(uuidv4())

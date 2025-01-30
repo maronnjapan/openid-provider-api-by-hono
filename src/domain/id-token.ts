@@ -5,8 +5,7 @@ export class IdToken {
     public readonly _iss: string
     public readonly _exp: number
     public readonly _iat: number
-    public readonly _nonce: string
-    private _secret_key: string
+    public readonly _nonce?: string
     public readonly _auth_time?: number
     public readonly _acr?: string
     public readonly _amr?: string[]
@@ -20,7 +19,6 @@ export class IdToken {
             exp,
             iat,
             nonce,
-            secret_key,
             auth_time,
             acr,
             amr,
@@ -32,8 +30,7 @@ export class IdToken {
                 iss: string,
                 exp: number,
                 iat: number,
-                nonce: string,
-                secret_key: string,
+                nonce?: string,
                 auth_time?: number,
                 acr?: string,
                 amr?: string[],
@@ -42,7 +39,6 @@ export class IdToken {
     ) {
         this._sub = sub
         this._aud = aud
-        this._secret_key = secret_key
         this._iss = iss
         this._exp = exp
         this._iat = iat
@@ -93,10 +89,6 @@ export class IdToken {
         return this._azp
     }
 
-    get secret_key() {
-        return this._secret_key
-    }
-
     toJSONPayload() {
         return {
             sub: this.sub,
@@ -117,6 +109,6 @@ export class IdToken {
             alg: 'RS256',
             typ: 'JWT',
             kid: kid
-        }
+        } as const;
     }
 }

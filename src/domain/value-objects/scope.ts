@@ -4,13 +4,15 @@ export type ScopeValue = 'openid' | 'offline_access' | 'profile' | 'email' | 'ph
 const SCOPE_VALUES: ScopeValue[] = ['openid', 'offline_access', 'profile', 'email', 'phone', 'address'];
 
 export class Scope {
+    readonly _value: ScopeValue;
     constructor(
-        public readonly value: string,
+        private readonly value: string,
     ) {
-        if (!Scope.isValidFormat(value)) {
+        const targetScope = SCOPE_VALUES.find(v => v === value);
+        if (!Scope.isValidFormat(value) || !targetScope) {
             throw new HTTPException(422, { message: 'Invalid scope' });
         }
-        this.value = value;
+        this._value = targetScope;
     }
 
     static isValidFormat(value: string) {

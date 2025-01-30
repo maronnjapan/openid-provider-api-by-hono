@@ -3,30 +3,30 @@ import type { Scope } from "./value-objects/scope"
 export class AccessToken {
     _exp: number
     constructor(
-        public readonly token_type: 'Bearer',
-        public readonly expires_in: number,
-        private readonly secret_key: string,
+        public readonly tokenType: 'Bearer',
+        public readonly expiresIn: number,
         private readonly scopes: Scope[],
-        public readonly generated_time = Date.now(),
+        public readonly generatedTime = Date.now(),
     ) {
-        this._exp = this.generated_time + this.expires_in
+        this._exp = this.generatedTime + this.expiresIn
     }
 
     get isExpired(): boolean {
-        return this.generated_time + this.expires_in < Date.now()
+        return this.generatedTime + this.expiresIn < Date.now()
     }
 
     generateHeader(kid: string) {
-        return {
+        const header = {
             alg: 'RS256',
             typ: 'JWT',
             kid
-        }
+        } as const
+        return header;
     }
 
     generatePayload() {
         return {
-            scopes: this.scopes.map(s => s.value),
+            scopes: this.scopes.map(s => s._value),
             exp: this._exp
         }
     }
