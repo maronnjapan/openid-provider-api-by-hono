@@ -33,7 +33,7 @@ export class GenerateAuthorizeCodeUseCase {
             throw new HTTPException(401, { message: 'Unauthorized client' });
         }
         if (client.allowRedirectUrls.length === 0 || client.allowScopes.length === 0) {
-            throw new HTTPException(401, { message: 'Not Allowed' });
+            throw new HTTPException(401, { message: 'Not Allowed URL' });
         }
         if (request.redirectUri && !client.allowRedirectUrls.some(redirectUrl => redirectUrl.url === request.redirectUri)) {
             throw new HTTPException(401, { message: 'Unauthorized url' });
