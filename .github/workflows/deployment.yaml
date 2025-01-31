@@ -31,10 +31,6 @@ jobs:
     needs: migrateDb
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: uploaded-wrangler
-          path: ./
       - name: Build & Deploy Worker
         uses: cloudflare/wrangler-action@v3
         env:
