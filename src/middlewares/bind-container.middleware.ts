@@ -7,9 +7,8 @@ import type { PrismaClient } from "@prisma/client";
 
 
 export const bindContainerMiddleware = async (context: Context, next: () => Promise<void>) => {
-    console.log(context.env.MY_KV_NAMESPACE, 'context.env.MY_KV_NAMESPACE')
     if (!container.isBound(KeyValueStoreRepositoryType.KVNamespace)) {
-        container.bind(KeyValueStoreRepositoryType.KVNamespace).toConstantValue(context.env.MY_KV_NAMESPACE);
+        container.bind(KeyValueStoreRepositoryType.KVNamespace).toConstantValue(context.env["kv-store"]);
     }
 
     if (!container.isBound(PrismaClientType.PrismaClient)) {
