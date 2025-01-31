@@ -30,16 +30,16 @@ export class GenerateAuthorizeCodeUseCase {
         const client = await this.prisma.client.findUnique({ where: { clientId: request.clientId }, include: { allowRedirectUrls: true, allowScopes: true } })
 
         if (!client) {
-            throw new HTTPException(401, { message: 'Unauthorized' });
+            throw new HTTPException(401, { message: 'Unauthorized client' });
         }
         if (client.allowRedirectUrls.length === 0 || client.allowScopes.length === 0) {
             throw new HTTPException(401, { message: 'Not Allowed' });
         }
         if (request.redirectUri && !client.allowRedirectUrls.some(redirectUrl => redirectUrl.url === request.redirectUri)) {
-            throw new HTTPException(401, { message: 'Unauthorized' });
+            throw new HTTPException(401, { message: 'Unauthorized url' });
         }
         if (!client.allowScopes.some(allowScope => request.scope.includes(allowScope.name))) {
-            throw new HTTPException(401, { message: 'Unauthorized' });
+            throw new HTTPException(401, { message: 'Unauthorized scope' });
         }
 
         const scopes = request.scope.map(s => new Scope(s))
