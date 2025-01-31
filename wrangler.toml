@@ -7,8 +7,8 @@ compatibility_date = "2025-01-02"
 # MY_VAR = "my-variable"
 
 [[kv_namespaces]]
-binding = "MY_KV_NAMESPACE"
-id = "KV_NAMESPACE"
+binding = "kv-store"
+id = "464f88835dc545778c62e25b0f5c9519"
 
 # [[r2_buckets]]
 # binding = "MY_BUCKET"
@@ -16,8 +16,8 @@ id = "KV_NAMESPACE"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "DATABASE_NAME"
-database_id = "DATABASE_ID"
+database_name = "openid-provider"
+database_id = "54dc7d05-7877-4c9e-b633-137bfc5ccf73"
 
 # [ai]
 # binding = "AI"
