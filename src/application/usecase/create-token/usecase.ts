@@ -82,7 +82,7 @@ export class CreateTokenUseCase {
             sub: 'sub',
             exp: Date.now() + 3600,
             iat: Date.now(),
-            iss: 'https://localhost:3002/',
+            iss: request.issuerUrl,
             nonce: authInfo.nonce
         });
 

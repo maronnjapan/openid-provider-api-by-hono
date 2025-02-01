@@ -18,9 +18,10 @@ export const registerTokenRoutes = (baseApp: typeof app, container: Container) =
 
     baseApp.openapi(createPostRouter, async (c) => {
         const createToken = container.get<CreateTokenUseCase>(CreateTokenType.CreateTokenUseCase)
+        const issuerUrl = c.env.ISSUER_URL
 
         const body = await c.req.json() as CreateTokenParamType
-        const res = await createToken.execute({ code: body.code, codeVerifier: body.code_verifier, redirectUri: body.redirect_uri, clientId: body.client_id })
+        const res = await createToken.execute({ issuerUrl, code: body.code, codeVerifier: body.code_verifier, redirectUri: body.redirect_uri, clientId: body.client_id })
 
         return c.json({ ...res }, 201, {
             'Content-Type': 'application/json',

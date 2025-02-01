@@ -11,7 +11,8 @@ import { authorizeRoutes } from './presentation/authorize/controller'
 
 type Bindings = {
   DB: D1Database
-  "kv-store": KVNamespace
+  "kv-store": KVNamespace,
+  ISSUER_URL: string,
 }
 const app = new OpenAPIHono<{ Bindings: Bindings }>()
 

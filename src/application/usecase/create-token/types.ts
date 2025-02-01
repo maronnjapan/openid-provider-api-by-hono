@@ -1,4 +1,5 @@
 export interface CreateTokenInput {
+    issuerUrl: string;
     codeVerifier: string;
     code: string;
     clientId?: string;
