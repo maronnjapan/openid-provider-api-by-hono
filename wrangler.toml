@@ -26,4 +26,4 @@ database_id = "54dc7d05-7877-4c9e-b633-137bfc5ccf73"
 enabled = true
 
 [vars]
-ISSUER_URL = "https://identity-provider-by-next-js.vercel.app"
+ISSUER_URL = "https://identity-provider-by-next-js.vercel.app/"
