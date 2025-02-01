@@ -80,8 +80,8 @@ export class CreateTokenUseCase {
         const idToken = new IdToken({
             aud: authInfo.clientId,
             sub: 'sub',
-            exp: Date.now() + 3600,
-            iat: Date.now(),
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
             iss: request.issuerUrl,
             nonce: authInfo.nonce
         });
