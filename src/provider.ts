@@ -11,6 +11,8 @@ import { CreateTokenUseCase } from "./application/usecase/create-token/usecase"
 import { CreateTokenType } from "./application/usecase/create-token/types"
 import { GenerateAuthorizeCodeType } from "./application/usecase/generate-authorize-code/types"
 import { GenerateAuthorizeCodeUseCase } from "./application/usecase/generate-authorize-code/usecase"
+import { LoginUseCase } from "./application/usecase/login/usecase"
+import { LoginType } from "./application/usecase/login/types"
 
 const container = new Container()
 
@@ -23,4 +25,7 @@ container.bind<IKeyRepositoryInterface>(KeyRepositoryType.IKeyRepositoryInterfac
 // applicationのBind
 container.bind<CreateTokenUseCase>(CreateTokenType.CreateTokenUseCase).to(CreateTokenUseCase)
 container.bind<GenerateAuthorizeCodeUseCase>(GenerateAuthorizeCodeType.GenerateAuthorizeCode).to(GenerateAuthorizeCodeUseCase)
+container.bind<LoginUseCase>(LoginType.LoginUseCase).to(LoginUseCase)
+
+console.dir(container, { depth: null })
 export { container };

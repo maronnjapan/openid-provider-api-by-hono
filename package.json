@@ -6,9 +6,10 @@
     "prisma:migrate": "prisma migrate dev && tsx scripts/sync-migration-file.ts",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "prisma db seed --preview-feature",
+    "prisma:seed": "prisma db seed",
     "prisma:reset": "prisma migrate reset --force && prisma migrate dev && tsx scripts/sync-migration-file.ts",
-    "wrangler:migrate:apply": "wrangler d1 migrations apply DATABASE_NAME --local",
+    "wrangler:migrate:apply": "wrangler d1 migrations apply openid-provider --local",
+    "wrangler:seed:local": "wrangler d1 execute openid-provider --local --file=scripts/sqls/seed-client.sql",
     "wrangler:seed:remote": "wrangler d1 execute openid-provider --remote --file=scripts/sqls/seed-client.sql",
     "vitest": "vitest",
     "vitest:run": "vitest run"
