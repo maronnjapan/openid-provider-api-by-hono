@@ -40,7 +40,6 @@ export class CreateTokenUseCase {
     }
 
     async execute(request: CreateTokenInput) {
-        console.log(request.codeVerifier)
         const keyPrevHash = await CodeChallenge.fromVerifier(new CodeVerifier(request.codeVerifier), 'S256')
         const key = await hashSha256(keyPrevHash.toString())
         const authInfo = await this.kvStoreRepository.get<AuthorizationInfo>(key);

@@ -11,7 +11,8 @@ export class KeyRepository implements IKeyRepositoryInterface {
     @inject(PrismaClientType.PrismaClient)
     private readonly prisma: PrismaClient;
 
-    private readonly signAlg = 'RSASSA-PKCS1-v1_5'
+    private readonly signAlg = 'ECDSA'
+
     private readonly hashAlg = 'SHA-256'
 
     constructor(prisma: PrismaClient, kid?: string) {
@@ -20,12 +21,12 @@ export class KeyRepository implements IKeyRepositoryInterface {
     }
 
     async generateSignKeys() {
-
         const keyPair = await crypto.subtle.generateKey(
             {
                 name: this.signAlg,
                 modulusLength: 2048,
                 publicExponent: new Uint8Array([1, 0, 1]).buffer,
+                namedCurve: "P-384",
                 hash: this.hashAlg
             },
             true,
@@ -65,6 +66,7 @@ export class KeyRepository implements IKeyRepositoryInterface {
     }
 
     async getKeys(kid?: string[]) {
+
         const keys = await this.prisma.signKey.findMany({ where: { kid: { in: kid } } });
 
         const exec = keys.map(async (key) => {

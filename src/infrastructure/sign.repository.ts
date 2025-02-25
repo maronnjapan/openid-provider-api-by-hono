@@ -11,7 +11,10 @@ export class SignRepository implements ISignRepositoryInterface {
         const payloadEncoded = this.encodeBase64Url(encoder.encode(JSON.stringify(payload)).buffer).replace(/=/g, '')
         const headerEncoded = this.encodeBase64Url(encoder.encode(JSON.stringify(header)).buffer).replace(/=/g, '')
         const partialToken = `${headerEncoded}.${payloadEncoded}`
-        const signPart = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', secretKey, encoder.encode(partialToken))
+        const signPart = await crypto.subtle.sign({
+            name: 'ECDSA',
+            hash: 'SHA-256',
+        }, secretKey, encoder.encode(partialToken))
         const signEncoded = this.encodeBase64Url(signPart).replace(/=/g, '')
 
         return `${partialToken}.${signEncoded}`;
