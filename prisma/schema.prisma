@@ -49,3 +49,9 @@ model Scope {
 
   client Client @relation(fields: [clientId], references: [clientId])
 }
+
+model SignKey {
+  kid        String @id @default(uuid())
+  publicKey  String
+  privateKey String
+}

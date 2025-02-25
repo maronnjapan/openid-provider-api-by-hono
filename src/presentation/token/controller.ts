@@ -6,8 +6,9 @@ import type { Container } from "inversify";
 import type { CreateTokenUseCase } from "../../application/usecase/create-token/usecase";
 import { CreateTokenType } from "../../application/usecase/create-token/types";
 import type { CreateTokenParamType } from "./schema";
+import type { AppType } from "../..";
 
-export const registerTokenRoutes = (baseApp: typeof app, container: Container) => {
+export const registerTokenRoutes = (baseApp: AppType, container: Container) => {
 
     baseApp.use(createPostRouter.path, cors({
         origin: '*',

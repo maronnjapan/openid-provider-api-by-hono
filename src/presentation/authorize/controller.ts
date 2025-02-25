@@ -7,8 +7,9 @@ import { GenerateAuthorizeCodeType } from "../../application/usecase/generate-au
 import type { AuthorizeParamSchemaType } from "./schema";
 import { convertRequestToGenerateAuthorizationCodeInput } from "./mapper/convert-request-to-usecase-input";
 import { setCookie } from "hono/cookie";
+import type { AppType } from "../..";
 
-export const authorizeRoutes = (baseApp: typeof app, container: Container) => {
+export const authorizeRoutes = (baseApp: AppType, container: Container) => {
 
     baseApp.openapi(authorizeRouter, async (c) => {
         const usecase = container.get<GenerateAuthorizeCodeUseCase>(GenerateAuthorizeCodeType.GenerateAuthorizeCode)

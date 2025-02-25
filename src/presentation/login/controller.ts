@@ -4,8 +4,9 @@ import { loginRouter } from "./router";
 import type { LoginRequestType } from "./schema";
 import type { LoginUseCase } from "../../application/usecase/login/usecase";
 import { LoginType } from "../../application/usecase/login/types";
+import type { AppType } from "../..";
 
-export const loginRoute = (baseApp: typeof app, container: Container) => {
+export const loginRoute = (baseApp: AppType, container: Container) => {
     baseApp.openapi(loginRouter, async (c) => {
 
         const loginUseCase = container.get<LoginUseCase>(LoginType.LoginUseCase)

@@ -69,7 +69,16 @@ export class CreateTokenUseCase {
             throw new HTTPException(401, { message: 'Invalid code' });
         }
 
-        const { kid, privateKey, publicKey } = await this.keyRepository.generateSignKeys();
+        const alreadyExistKeys = await this.keyRepository.getKeys()
+        const keys = [...alreadyExistKeys]
+        if (keys.length < 3) {
+            const { kid, privateKey, publicKey } = await this.keyRepository.generateSignKeys();
+            await this.keyRepository.saveKeys(kid, { privateKey, publicKey });
+            keys.push({ kid, privateKey, publicKey });
+        }
+
+        const { kid, privateKey } = keys[0];
+
 
         const accessToken = new AccessToken('Bearer', 3600, authInfo.scope.map(s => new Scope(s)));
         const header = accessToken.generateHeader(kid);
