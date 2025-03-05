@@ -13,6 +13,7 @@ export class GetPublicKeysUseCase {
     }
 
     async execute(): Promise<{ keys: JsonWebKeyWithKid[] }> {
+        console.log(await this.keyRepository.exportPublicKeys())
         return await this.keyRepository.exportPublicKeys()
     }
 }

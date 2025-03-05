@@ -1,5 +1,5 @@
 export type TokenHeader = {
-    alg: 'RS256' | 'HS256',
+    alg: 'RS256' | 'HS256' | 'ES256',
     typ: 'JWT'
     kid: string
 }

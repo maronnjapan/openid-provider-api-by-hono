@@ -20,7 +20,6 @@ export type Bindings = {
 const app = new OpenAPIHono<{ Bindings: Bindings }>()
 export type AppType = typeof app
 
-console.dir(container, { depth: null })
 app.use(logger())
 app.use('*', requestId())
 app.use('*', loggerMiddleware)

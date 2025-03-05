@@ -4,16 +4,17 @@ import { inject, injectable } from 'inversify';
 import { HTTPException } from 'hono/http-exception';
 import type { PrismaClient } from '@prisma/client';
 import { PrismaClientType } from './prisma';
+import { KEY_BASE_OPTIONS } from '../utils/const';
+
+const pemHeader = "-----BEGIN PRIVATE KEY-----";
+const pemFooter = "-----END PRIVATE KEY-----";
+
 
 @injectable()
 export class KeyRepository implements IKeyRepositoryInterface {
     readonly _kid: string
     @inject(PrismaClientType.PrismaClient)
     private readonly prisma: PrismaClient;
-
-    private readonly signAlg = 'ECDSA'
-
-    private readonly hashAlg = 'SHA-256'
 
     constructor(prisma: PrismaClient, kid?: string) {
         this._kid = kid ?? uuidv4()
@@ -23,11 +24,8 @@ export class KeyRepository implements IKeyRepositoryInterface {
     async generateSignKeys() {
         const keyPair = await crypto.subtle.generateKey(
             {
-                name: this.signAlg,
+                ...KEY_BASE_OPTIONS,
                 modulusLength: 2048,
-                publicExponent: new Uint8Array([1, 0, 1]).buffer,
-                namedCurve: "P-384",
-                hash: this.hashAlg
             },
             true,
             ['sign', 'verify']
@@ -37,12 +35,6 @@ export class KeyRepository implements IKeyRepositoryInterface {
             throw new HTTPException(500, { message: 'Failed to generate key pair' })
         }
 
-        // const publicKey = await crypto.subtle.exportKey('spki', keyPair.publicKey);
-        // const privateKey = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
-        // if (!(publicKey instanceof ArrayBuffer) || !(privateKey instanceof ArrayBuffer)) {
-        //     throw new HTTPException(500, { message: 'Failed to export key' })
-        // }
-
         return {
             kid: this._kid,
             ...keyPair,
@@ -51,15 +43,17 @@ export class KeyRepository implements IKeyRepositoryInterface {
 
     async saveKeys(kid: string, keys: { publicKey: CryptoKey, privateKey: CryptoKey }): Promise<void> {
         const publicKey = await crypto.subtle.exportKey('jwk', keys.publicKey);
-        const privateKey = await crypto.subtle.exportKey('jwk', keys.privateKey);
-        if ((publicKey instanceof ArrayBuffer) || (privateKey instanceof ArrayBuffer)) {
+        const privateKey = await crypto.subtle.exportKey('pkcs8', keys.privateKey);
+        if ((publicKey instanceof ArrayBuffer) || !(privateKey instanceof ArrayBuffer)) {
             throw new HTTPException(500, { message: 'Failed to export key' })
         }
+
+        const pemExported = `${pemHeader}\n${this.encodeBase64(privateKey)}\n${pemFooter}`;
 
         await this.prisma.signKey.create({
             data: {
                 kid,
-                privateKey: JSON.stringify(privateKey),
+                privateKey: pemExported,
                 publicKey: JSON.stringify(publicKey)
             }
         })
@@ -67,14 +61,13 @@ export class KeyRepository implements IKeyRepositoryInterface {
 
     async getKeys(kid?: string[]) {
 
+        await this.prisma.signKey.deleteMany();
         const keys = await this.prisma.signKey.findMany({ where: { kid: { in: kid } } });
 
         const exec = keys.map(async (key) => {
-            const publicKey = await crypto.subtle.importKey('jwk', JSON.parse(key.publicKey), { name: this.signAlg, hash: this.hashAlg }, true, ['verify']);
-            const privateKey = await crypto.subtle.importKey('jwk', JSON.parse(key.privateKey), { name: this.signAlg, hash: this.hashAlg }, true, ['sign']);
-            if (!(publicKey instanceof CryptoKey) || !(privateKey instanceof CryptoKey)) {
-                throw new HTTPException(500, { message: 'Failed to import key' })
-            }
+            const publicKey = await crypto.subtle.importKey('jwk', JSON.parse(key.publicKey), KEY_BASE_OPTIONS, true, ['verify']);
+            const privateKey = await crypto.subtle.importKey('pkcs8', this.convertStringToArrayBufferView(key.privateKey), KEY_BASE_OPTIONS, true, ['sign']);
+
             return {
                 kid: key.kid,
                 publicKey,
@@ -96,4 +89,19 @@ export class KeyRepository implements IKeyRepositoryInterface {
 
         return { keys }
     }
+
+    private encodeBase64(buffer: ArrayBuffer) {
+        return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+    }
+
+    private convertStringToArrayBufferView(str: string) {
+        const decodeString = atob(str);
+        const buf = new ArrayBuffer(decodeString.length);
+        const bufView = new Uint8Array(buf);
+        for (let i = 0, strLen = decodeString.length; i < strLen; i++) {
+            bufView[i] = decodeString.charCodeAt(i);
+        }
+        return buf;
+    }
+
 }

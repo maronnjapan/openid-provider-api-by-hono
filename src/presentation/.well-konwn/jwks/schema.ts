@@ -28,4 +28,8 @@ export const JwksResponseSchema = z.object({
         ext: z.boolean().optional().openapi({ title: 'RSA Public Exponent' }),
         k: z.string().optional().openapi({ title: 'Symmetric Key' }),
     })).openapi({ title: 'Keys' }),
-}) 
+})
+
+export const VerifyTokenRequestSchema = z.object({
+    token: z.string().openapi({ title: 'Token' }),
+});

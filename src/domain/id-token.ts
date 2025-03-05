@@ -106,7 +106,7 @@ export class IdToken {
 
     toJsonHeader(kid: string) {
         return {
-            alg: 'RS256',
+            alg: 'ES256',
             typ: 'JWT',
             kid: kid
         } as const;

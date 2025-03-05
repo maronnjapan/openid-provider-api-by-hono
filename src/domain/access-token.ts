@@ -17,7 +17,7 @@ export class AccessToken {
 
     generateHeader(kid: string) {
         const header = {
-            alg: 'RS256',
+            alg: 'ES256',
             typ: 'JWT',
             kid
         } as const
