@@ -68,7 +68,8 @@ export class CreateTokenUseCase {
             throw new HTTPException(401, { message: 'Invalid code' });
         }
 
-        const alreadyExistKeys = await this.keyRepository.getKeys()
+        const wrapKey = await this.keyRepository.findOrCreateWrapKey();
+        const alreadyExistKeys = await this.keyRepository.getKeys(wrapKey)
         const keys = [...alreadyExistKeys]
         if (keys.length < 3) {
             const { kid, privateKey, publicKey } = await this.keyRepository.generateSignKeys();

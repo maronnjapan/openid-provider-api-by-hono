@@ -2,13 +2,11 @@ import { v4 as uuidv4 } from 'uuid'
 import type { IKeyRepositoryInterface, KeySetType } from '../domain/key.repository.interface';
 import { inject, injectable } from 'inversify';
 import { HTTPException } from 'hono/http-exception';
-import type { PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import { PrismaClientType } from './prisma';
 import { KEY_BASE_OPTIONS } from '../utils/const';
 
-const pemHeader = "-----BEGIN PRIVATE KEY-----";
-const pemFooter = "-----END PRIVATE KEY-----";
-
+const iv = new ArrayBuffer(12);
 
 @injectable()
 export class KeyRepository implements IKeyRepositoryInterface {
@@ -25,7 +23,6 @@ export class KeyRepository implements IKeyRepositoryInterface {
         const keyPair = await crypto.subtle.generateKey(
             {
                 ...KEY_BASE_OPTIONS,
-                modulusLength: 2048,
             },
             true,
             ['sign', 'verify']
@@ -42,31 +39,84 @@ export class KeyRepository implements IKeyRepositoryInterface {
     }
 
     async saveKeys(kid: string, keys: { publicKey: CryptoKey, privateKey: CryptoKey }): Promise<void> {
+        let wrapKey = (await this.prisma.wrapKey.findFirst())?.key
+        if (!wrapKey) {
+            wrapKey = await this.findOrCreateWrapKey();
+        }
         const publicKey = await crypto.subtle.exportKey('jwk', keys.publicKey);
-        const privateKey = await crypto.subtle.exportKey('pkcs8', keys.privateKey);
-        if ((publicKey instanceof ArrayBuffer) || !(privateKey instanceof ArrayBuffer)) {
+        if ((publicKey instanceof ArrayBuffer)) {
             throw new HTTPException(500, { message: 'Failed to export key' })
         }
 
-        const pemExported = `${pemHeader}\n${this.encodeBase64(privateKey)}\n${pemFooter}`;
+        const aesKey = await crypto.subtle.importKey('raw', this.convertBase64StringToArrayBufferView(wrapKey), {
+            name: 'AES-GCM',
+        }, true, ['wrapKey', 'unwrapKey']);
+
+        const wrappedPrivateKey = await crypto.subtle.wrapKey('pkcs8', keys.privateKey, aesKey, {
+            name: "AES-GCM",
+            iv,
+        });
+
+        // const pemExported = `${pemHeader}\n${this.encodeBase64(wrappedPrivateKey)}\n${pemFooter}`;
 
         await this.prisma.signKey.create({
             data: {
                 kid,
-                privateKey: pemExported,
+                privateKey: this.encodeBase64(wrappedPrivateKey),
                 publicKey: JSON.stringify(publicKey)
             }
         })
     }
 
-    async getKeys(kid?: string[]) {
+    async findOrCreateWrapKey() {
+        const wrapKey = await this.prisma.wrapKey.findFirst()
+        if (!wrapKey) {
+            const aesKey = await crypto.subtle.generateKey(
+                {
+                    name: 'AES-GCM',
+                    length: 256,
+                },
+                true,
+                ['wrapKey', 'unwrapKey']
+            );
+            if (!(aesKey instanceof CryptoKey)) {
+                throw new HTTPException(500, { message: 'Failed to generate key pair' })
+            }
 
-        await this.prisma.signKey.deleteMany();
+            const exportWrapKey = await crypto.subtle.exportKey('raw', aesKey);
+
+            if (!(exportWrapKey instanceof ArrayBuffer)) {
+                throw new HTTPException(500, { message: 'Failed to export key' })
+            }
+
+            const decodeWrapKey = this.encodeBase64(exportWrapKey);
+            await this.prisma.wrapKey.create({
+                data: {
+                    key: decodeWrapKey
+                }
+            })
+
+            return decodeWrapKey;
+        }
+        return wrapKey.key
+    }
+
+    async getKeys(wrapKey: string, kid?: string[]) {
+
+        const importWrapKey = await crypto.subtle.importKey('raw', this.convertBase64StringToArrayBufferView(wrapKey), {
+            name: 'AES-GCM',
+            length: 256,
+        }, true, ['wrapKey', 'unwrapKey']);
+
+
         const keys = await this.prisma.signKey.findMany({ where: { kid: { in: kid } } });
 
         const exec = keys.map(async (key) => {
             const publicKey = await crypto.subtle.importKey('jwk', JSON.parse(key.publicKey), KEY_BASE_OPTIONS, true, ['verify']);
-            const privateKey = await crypto.subtle.importKey('pkcs8', this.convertStringToArrayBufferView(key.privateKey), KEY_BASE_OPTIONS, true, ['sign']);
+            const privateKey = await crypto.subtle.unwrapKey('pkcs8', this.convertBase64StringToArrayBufferView(key.privateKey), importWrapKey, {
+                name: "AES-GCM",
+                iv,
+            }, KEY_BASE_OPTIONS, true, ['sign']);
 
             return {
                 kid: key.kid,
@@ -94,7 +144,7 @@ export class KeyRepository implements IKeyRepositoryInterface {
         return btoa(String.fromCharCode(...new Uint8Array(buffer)))
     }
 
-    private convertStringToArrayBufferView(str: string) {
+    private convertBase64StringToArrayBufferView(str: string) {
         const decodeString = atob(str);
         const buf = new ArrayBuffer(decodeString.length);
         const bufView = new Uint8Array(buf);

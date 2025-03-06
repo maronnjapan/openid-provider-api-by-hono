@@ -55,3 +55,8 @@ model SignKey {
   publicKey  String
   privateKey String
 }
+
+model WrapKey {
+  id  String @id @default(uuid())
+  key String
+}
