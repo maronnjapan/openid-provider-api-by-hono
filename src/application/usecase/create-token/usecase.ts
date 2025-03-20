@@ -69,12 +69,12 @@ export class CreateTokenUseCase {
         }
 
         const wrapKey = await this.keyRepository.findOrCreateWrapKey();
-        const alreadyExistKeys = await this.keyRepository.getKeys(wrapKey)
+        const alreadyExistKeys = await this.keyRepository.getPrivateKeys(wrapKey)
         const keys = [...alreadyExistKeys]
         if (keys.length < 3) {
             const { kid, privateKey, publicKey } = await this.keyRepository.generateSignKeys();
             await this.keyRepository.saveKeys(kid, { privateKey, publicKey });
-            keys.push({ kid, privateKey, publicKey });
+            keys.push({ kid, privateKey });
         }
 
         const { kid, privateKey } = keys[0];

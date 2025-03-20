@@ -1,15 +1,16 @@
 export interface IKeyRepositoryInterface {
-    readonly _kid: string
     generateSignKeys(): { kid: string } & KeySetType | Promise<{ kid: string } & KeySetType>
     findOrCreateWrapKey(): Promise<string>
 
     saveKeys(kid: string, keys: KeySetType): Promise<void>
-    getKeys(buffer: string, kid?: string[]): Promise<(KeySetType & { kid: string })[]>
+    getPrivateKeys(buffer: string, kid?: string[]): Promise<(PrivateKeyType & { kid: string })[]>
 
     exportPublicKeys(): Promise<{ keys: JsonWebKeyWithKid[] }>
 }
 
-export type KeySetType = { publicKey: CryptoKey, privateKey: CryptoKey }
+export type PrivateKeyType = { privateKey: CryptoKey }
+export type publicKeyType = { publicKey: CryptoKey }
+export type KeySetType = publicKeyType & PrivateKeyType
 
 export const IKeyRepositoryInterfaceType = {
     IKeyRepositoryInterface: Symbol.for('IKeyRepositoryInterface'),
